@@ -1,0 +1,21 @@
+---
+- name: Create symlink to src folder
+  ansible.builtin.file:
+    src: "../src"
+    dest: "{{ etherpad_path }}/node_modules/ep_etherpad-lite"
+    state: link
+    force: true
+  become: true
+  become_user: etherpad
+
+- name: Re-install etherpad dependencies
+  ansible.builtin.command: "npm ci --no-optional"
+  args:
+    chdir: "{{ etherpad_path }}/node_modules/ep_etherpad-lite"
+  become: true
+  become_user: "{{ etherpad_user }}"
+
+- name: Remove minified data
+  ansible.builtin.command: "rm -f var/minified*"
+  args:
+    chdir: "{{ etherpad_path }}/node_modules/ep_etherpad-lite"

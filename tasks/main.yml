@@ -85,14 +85,13 @@
   meta: flush_handlers
 
 - name: Install etherpad plugins
-  npm:
-    name: "{{ item }}"
-    path: "{{ etherpad_path }}"
-    state: "{{ etherpad_plugins_state }}"
-    registry: https://github.com
+  command:
+    cmd: "npm install --no-save --legacy-peer-deps {{ etherpad_plugins | join(' ') }}"
+    creates: "{{ etherpad_path }}/node_modules/{{ etherpad_plugins | last }}"
+  args:
+    chdir: "{{ etherpad_path }}"
   become: true
   become_user: "{{ etherpad_user }}"
-  with_items: "{{ etherpad_plugins | default() }}"
   notify:
     - Ensure etherpad dependencies are latest
     - Restart etherpad-lite
